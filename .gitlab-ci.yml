@@ -1,0 +1,57 @@
+stages:
+- "test"
+
+.test-template:
+  stage: test
+  image: python:3.9.6-slim-buster
+  tags:
+  - kubernetes-runner
+  - docker-runner
+  except:
+  - tags
+  before_script:
+  - pip install poetry==1.4.2
+  - poetry config virtualenvs.create false
+  - poetry install
+
+black:
+  extends:
+  - .test-template
+  script:
+  - black --check .
+
+flake8:
+  extends:
+  - .test-template
+  script:
+  - flake8 --count .
+
+mypy:
+  extends:
+  - .test-template
+  script:
+  - mypy .
+
+pytest:
+  extends:
+  - .test-template
+  services:
+  - name: rabbitmq:3.9.16-alpine
+    alias: rmq
+  variables:
+
+    # Rabbitmq variables
+    RABBITMQ_DEFAULT_USER: "guest"
+    RABBITMQ_DEFAULT_PASS: "guest"
+    RABBITMQ_DEFAULT_VHOST: "/"
+    CLOUD_BACKEND_RABBIT_HOST: rmq
+  script:
+  - pytest -vv --junitxml=report.xml --cov="cloud_backend" .
+  - coverage xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
