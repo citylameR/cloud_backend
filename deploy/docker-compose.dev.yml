@@ -6,10 +6,25 @@ services:
       # Exposes application port.
     - "8000:8000"
     build:
-      target: dev
+      target: development
+      context: .
+      dockerfile: ./deploy/api.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-true}
     volumes:
       # Adds current directory as volume.
     - .:/app/src/
+    environment:
+      # Enables autoreload.
+      CLOUD_BACKEND_RELOAD: "True"
+
+  worker:
+    build:
+      target: development
+      context: .
+      dockerfile: ./deploy/worker.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-true}
     environment:
       # Enables autoreload.
       CLOUD_BACKEND_RELOAD: "True"

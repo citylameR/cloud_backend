@@ -4,12 +4,16 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./deploy/Dockerfile
-      target: prod
+      target: production
+      dockerfile: ./deploy/worker.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
     image: cloud_backend:${CLOUD_BACKEND_VERSION:-latest}
     restart: always
     env_file:
     - .env
+    networks:
+    - service-network
     depends_on:
       redis:
         condition: service_healthy
@@ -20,10 +24,41 @@ services:
       CLOUD_BACKEND_RABBIT_HOST: cloud_backend-rmq
       CLOUD_BACKEND_REDIS_HOST: cloud_backend-redis
 
+  worker:
+    build:
+      context: .
+      target: production
+      dockerfile: ./deploy/worker.dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    image: cloud_backend_worker:${PUBLIC_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    networks:
+    - service-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      rmq:
+        condition: service_healthy
+    environment:
+      RUN: celery -A cloud_backend.queue.worker worker -l info -Q ${CLOUD_BACKEND_QUEUE_NAME} -c 1
+      CLOUD_BACKEND: 0.0.0.0
+      CLOUD_BACKEND_RABBIT_HOST: rmq
+    logging:
+      options:
+        mode: "non-blocking"
+        max-buffer-size: "5m"
+        max-size: "50m"
+        max-file: "3"
+
   redis:
     image: bitnami/redis:6.2.5
     hostname: "cloud_backend-redis"
     restart: always
+    networks:
+    - service-network
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
     healthcheck:
@@ -36,6 +71,8 @@ services:
     image: rabbitmq:3.9.16-alpine
     hostname: "cloud_backend-rmq"
     restart: always
+    networks:
+    - service-network
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
@@ -45,3 +82,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 50
+
+networks:
+  service-network:
+    driver: bridge
