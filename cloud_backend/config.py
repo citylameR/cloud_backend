@@ -1,0 +1,34 @@
+import os
+
+# Some result format configs
+RESULT_ID = os.getenv("RESULT_ID")
+RESULT_LIST_NDVI = os.getenv("RESULT_LIST_NDVI")
+RESULT_DATE = os.getenv("RESULT_DATE")
+RESULT_DATE_FORMAT = os.getenv("RESULT_DATE_FORMAT")
+RESULT_VALUE = os.getenv("RESULT_VALUE")
+FIELD_RESULT_KEY = os.getenv("FIELD_RESULT_KEY")
+RETRY_COUNTDOWN = os.getenv("RETRY_COUNTDOWN")
+MAX_RETRIES = os.getenv("MAX_RETRIES")
+
+# Keys of result task object to respond
+TASK_RESULT_STATUS = os.getenv("TASK_RESULT_STATUS")
+TASK_RESULT_RETVAL = os.getenv("TASK_RESULT_RETVAL")
+TASK_RESULT_TASK_ID = os.getenv("TASK_RESULT_TASK_ID")
+
+# Specify url to respond when task returned
+TASK_RESULT_RESPOND_URL = os.getenv("TASK_RESULT_RESPOND_URL")
+SERVER_TO_RESPOND_URL = os.getenv("SERVER_TO_RESPOND_URL")
+
+# CELERY
+BROKER = os.getenv("BROKER")
+BACKEND = os.getenv("BACKEND")
+
+# RABBITMQ
+RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER")
+RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS")
+RABBITMQ_DEFAULT_VHOST = os.getenv("RABBITMQ_DEFAULT_VHOST")
+
+# REDIS
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_DB = os.getenv("REDIS_DB")

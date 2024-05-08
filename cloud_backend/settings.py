@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     rabbit_pool_size: int = 2
     rabbit_channel_pool_size: int = 10
 
+    # Variables for Celery
+    queue_name: str = "cloud_backend-queue"
+    max_tries: int = 60 * 5
+    wait_seconds: int = 2
+    celery_task_result_expires: int = 3600
+
     # This variable is used to define
     # multiproc_dir. It's required for [uvi|guni]corn projects.
     prometheus_dir: Path = TEMP_DIR / "prom"
